@@ -1,0 +1,648 @@
+{% extends 'partials/base.html.twig' %}
+{% if admin.route %}
+    {% set context = admin.page(true) %}
+{% endif %}
+
+{% block titlebar %}
+    {# here html for back and save button #}
+    <div class="button-bar">
+        <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> {{ "PLUGIN_ADMIN.BACK"|tu }}</a>
+    </div>
+  <h1>
+    <i class="custom-plugin-icon"></i>
+    {{ "PLUGIN_SKYNETACCESSIBILITYSCANNER.SKYNETACCESSIBILITY_SCANNER"|tu }}
+    <sub>
+      <a href="" target="_blank"> {{ "PLUGIN_SKYNETACCESSIBILITYSCANNER.SKYNETACCESSIBILITY_SCANNER_SUB"|tu }}</a>
+    </sub>
+  </h1>
+{% endblock %}
+
+{% block content %}
+{% if grav.user.authenticated %}
+{% else %}
+{% endif %}
+
+<head>
+<meta name="description" content="" />
+<link rel="mask-icon" href="" />
+<meta name="Generator" content="Drupal 9 (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<link rel="icon" href="https://www.skynettechnologies.com/sites/default/files/favicon_0.webp" type="image/png" />
+  <link href="{{ url('plugin://skynetaccessibilityscanner/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url('plugin://skynetaccessibilityscanner/assets/css/scanning-and-monitoring-app.css') }}" rel="stylesheet">
+</head>
+
+<body class="layout-no-sidebars has-featured-top page-node-1860 path-node node--type-page scrolled scrolldown">
+
+<!-- Section 1-->
+
+<div id="section1">
+
+  <a href="#main-content" class="visually-hidden focusable skip-link"> Skip to main content </a>
+  <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+    <div id="page-wrapper">
+      <div id="page">
+        <div id="main-wrapper" class="layout-main-wrapper clearfix">
+          <div id="main" class="container">
+            <div class="row row-offcanvas row-offcanvas-left clearfix">
+              <main class="main-content col" id="content" role="main">
+                <section class="section">
+                  <div id="main-content" tabindex="-1"></div>
+                  <div id="block-skynettechnologies-content" class="block block-system block-system-main-block">
+                    <div class="content">
+                      <article data-history-node-id="529" class="node node--type-page node--view-mode-full clearfix">
+                        <div class="node__content clearfix ">
+                          <div class="scanning-monitoring-app">
+                            <div class="scans">
+                              <p class="title">My Scans</p>
+                              <!-- Status Section -->
+                              <section class="status">
+                                <div class="page-background"></div>
+                                {# ================= Sitemap Card ================= #}
+                                <div class="status-card">
+
+                                    {% set url_scan_status = data.url_scan_status|default(0) %}
+                                    {% set total_pages = data.total_pages|default(0) %}
+                                    {% set dashboard_link = data.dashboard_link|default('#') %}
+                                    {% set is_expired = data.is_expired|default(0) %}
+
+                                    <span class="status-title">Sitemap</span>
+                                    <span class="status-value
+                                      {% if is_expired %}status-paused{% elseif url_scan_status < 2 %}status-progress{% endif %}">
+                                      {% if is_expired %}
+                                        Scanning Paused
+                                      {% elseif url_scan_status < 2 %}
+                                        Generating Sitemap
+                                      {% elseif url_scan_status == 2 %}
+                                        <a style="color: black; font-weight: 700;" href="{{ dashboard_link }}" target="_blank">
+                                              <span style="font-size: 40px;">{{ total_pages }}</span> Pages
+                                          </a>
+                                      {% endif %}
+                                    </span>
+                                </div>
+
+                                {# ================= Scan Score Card ================= #}
+                                <div class="status-card">
+                                    {% set success_percentage = data.success_percentage|default(0) %}
+                                    {% set total_fail_sum = data.total_fail_sum|default(0) %}
+                                    {% set scan_violation_total = data.scan_violation_total|default(0) %}
+                                    <span class="status-title">Scan Score</span>
+                                    {% if is_expired %}
+                                      <span class="status-value status-inactive">N/A</span>
+                                    {% elseif scan_violation_total == 0 %}
+                                      <span class="status-value status-inactive">N/A</span>
+                                    {% else %}
+                                      <span class="status-value status-progress" style="cursor:pointer;" onclick="showDetails()">
+                                        {{ success_percentage }}%
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: {{ success_percentage }}%;"></div>
+                                        </div>
+                                        <div class="violations">
+                                            Violations: <span class="status-value" style="font-size: 15px;">{{ total_fail_sum }}</span>
+                                        </div>
+                                      </span>
+                                    {% endif %}
+                                </div>
+
+                                {# ================= Last Scanned Card ================= #}
+                                <div class="status-card">
+                                  {% set scan_status = data.scan_status|default(0) %}
+                                  {% set total_scan_pages = data.total_scan_pages|default(0) %}
+                                  {% set total_selected_pages = data.total_selected_pages|default(0) %}
+                                  {% set last_scan = data.last_scan|default(null) %}
+
+                                  <span class="status-title">Last Scanned</span>
+
+                                  {% if url_scan_status < 2 or scan_status == 0 %}
+                                      <span class="status-value status-inactive">
+                                          <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/not-shared.svg') }}" alt="" title="Not Started">
+                                          Not Started
+                                      </span>
+                                    {% elseif scan_status in [1, 2] %}
+                                        <span class="status-value status-inactive">
+                                            <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/not-shared.svg') }}" alt="" title="Scanning in process">
+                                            Scanning<br>
+                                            {{ total_scan_pages }}/{{ total_selected_pages }}
+                                        </span>
+                                    {% elseif scan_status == 3 %}
+                                        <span class="status-value status-active">
+                                          {{ total_scan_pages }} Pages<br>
+                                          {% if last_scan %}
+                                            {{ last_scan|date("F jS Y") }}
+                                          {% endif %}
+                                        </span>
+                                  {% endif %}
+
+                                </div>
+                              </section>
+
+                              <hr class="divider">
+                              <!-- Plan Section -->
+                              <section class="plan">
+                                <div class="page-background"></div>
+                                  <div class="plan-info">
+                                    <div class="plans-left">
+                                        <span class="plan-type free">
+                                           <div class="icon-circle">
+                                              <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/round.svg') }}" alt="" height="20" width="20">
+                                          </div>
+                                            {# Determine if plan has expired #}
+                                          {% set is_expired = data.end_date is defined and (data.end_date|date("Y-m-d") < "now"|date("Y-m-d")) %}
+                                            <span>
+                                                {% if is_expired %}
+                                                  <span style="color: #9F0000; font-weight: 700;">Your Plan has Expired</span>
+                                                {% else %}
+                                                  {% if data.is_trial_period is defined and data.is_trial_period == 1 %}
+                                                    Free Plan
+                                                  {% else %}
+                                                    {{ data.package_name|default('') }} Plan
+                                                  {% endif %}
+                                                {% endif %}
+                                            </span>
+                                            <span class="plan-desc">
+                                                <ul>
+                                                    {% if not is_expired %}
+                                                      <li>Scan up to {{ data.page_views|default(0) }} Pages</li>
+                                                    {% endif %}
+                                                </ul>
+                                            </span>
+                                            <span class="plan-badge">Current Plan</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="plans-right">
+                                        <span class="plan-renewal">Renews on:
+                                            <strong>
+                                                {% if data.end_date is defined %}
+                                                  {{ data.end_date|date("F j, Y") }}
+                                                {% endif %}
+                                            </strong>
+                                        </span>
+                                        <button class="cancel-btn" style="{% if is_expired %}background-color: #420083; color: #fff;{% endif %}"
+                                              onclick="window.open('{{ data.dashboard_link|default('#') }}', '_blank')">
+                                        {% if is_expired %}
+                                          Renew Plan
+                                        {% else %}
+                                          Cancel Subscription
+                                        {% endif %}
+                                      </button>
+                                    </div>
+                                  </div>
+                              </section>
+
+                              <!-- Plan Section -->
+                              <!-- Pricing Section -->
+                              <section class="pricing">
+                                <div class="page-background"></div>
+
+                                <div class="billing-toggle">
+                                  <span class="label active" id="monthly-label">Pay Monthly</span>
+                                  <label class="switch">
+                                    <input type="checkbox" id="billing-toggle">
+                                    <span class="slider"></span>
+                                  </label>
+                                  <span class="label" id="annual-label">Pay Annually</span>
+                                  <span class="save">Save 20%</span>
+                                </div>
+
+                                {# Monthly Plans #}
+                                <div id="monthlyclass" class="monthlyclass">
+                                  <div class="pricing-tiers">
+                                    {% if data.plans is defined and data.plans|length > 0 %}
+                                      {% for plan in data.plans %}
+                                        {% set is_expired = data.end_date is defined and (data.end_date|date("Y-m-d") < "now"|date("Y-m-d")) %}
+                                        <div class="tier"
+                                             data-plan-id="{{ plan.id }}"
+                                             data-annual-price="{{ plan.price }}"
+                                             data-monthly-price="{{ plan.monthly_price }}">
+
+                                          <div class="pricing-top">
+                                            <div class="pricing-header">
+                                              <div class="icon-circle">
+                                                {% if loop.index0 == 0 %}
+                                                  <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/diamond.svg') }}" alt="" height="20" width="20">
+                                                {% elseif loop.index0 == 1 %}
+                                                  <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/pentagon.svg') }}" alt="" height="20" width="20">
+                                                {% else %}
+                                                  <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/hexagon.svg') }}" alt="" height="20" width="20">
+                                                {% endif %}
+                                              </div>
+                                            </div>
+                                            <div class="pricing-info">
+                                              <h3 class="tier-title">{{ plan.name }}</h3>
+                                              <p class="tier-pages">{{ plan.page_views }} Pages</p>
+                                            </div>
+                                          </div>
+
+                                          <hr class="pricing-divider">
+
+                                          <div class="pricing-body">
+                                            <p class="old-price">${{ plan.strick_monthly_price }}</p>
+                                            <p class="new-price">${{ plan.monthly_price }}<span class="per-year">/Monthly</span></p>
+                                          </div>
+
+                                          <button class="upgrade-btn{% if not is_expired and data.final_price == plan.monthly_price %} cancel-btnn{% endif %}"
+                                                  data-action="{% if is_expired %}upgrade{% elseif data.final_price == plan.monthly_price %}cancel{% else %}upgrade{% endif %}"
+                                                  onclick="handleUpgradeClick('{{ plan.id }}', this.dataset.action, 'M')">
+                                            {% if is_expired %}
+                                              Upgrade
+                                            {% elseif data.final_price == plan.monthly_price %}
+                                              Cancel
+                                            {% else %}
+                                              Upgrade
+                                            {% endif %}
+                                          </button>
+
+                                        </div>
+                                      {% endfor %}
+                                    {% else %}
+                                      <p>No plans available.</p>
+                                    {% endif %}
+                                  </div>
+                                </div>
+
+                                {# Annual Plans #}
+                                <div id="annualclass" class="annualclass">
+                                  <div class="pricing-tiers">
+                                    {% if data.plans is defined and data.plans|length > 0 %}
+                                      {% for plan in data.plans %}
+                                        {% set is_expired = data.end_date is defined and (data.end_date|date("Y-m-d") < "now"|date("Y-m-d")) %}
+                                        <div class="tier"
+                                             data-plan-id="{{ plan.id }}"
+                                             data-annual-price="{{ plan.strick_price }}"
+                                             data-monthly-price="{{ plan.strick_monthly_price }}">
+
+                                          <div class="pricing-top">
+                                            <div class="pricing-header">
+                                              {% if loop.index0 == 0 %}
+                                                <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/diamond.svg') }}" alt="" height="20" width="20">
+                                              {% elseif loop.index0 == 1 %}
+                                                <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/pentagon.svg') }}" alt="" height="20" width="20">
+                                              {% else %}
+                                                <img src="{{ url('plugin://skynetaccessibilityscanner/assets/img/hexagon.svg') }}" alt="" height="20" width="20">
+                                              {% endif %}
+                                            </div>
+                                            <div class="pricing-info">
+                                              <h3 class="tier-title">{{ plan.name }}</h3>
+                                              <p class="tier-pages">{{ plan.page_views }} Pages</p>
+                                            </div>
+                                          </div>
+
+                                          <hr class="pricing-divider">
+
+                                          <div class="pricing-body">
+                                            <p class="old-price">${{ plan.strick_price }}</p>
+                                            <p class="new-price">${{ plan.price }}<span class="per-year">/Year</span></p>
+                                          </div>
+
+                                          <button class="upgrade-btn{% if not is_expired and data.final_price == plan.strick_price %} cancel-btnn{% endif %}"
+                                                  data-action="{% if is_expired %}upgrade{% elseif data.final_price == plan.strick_price %}cancel{% else %}upgrade{% endif %}"
+                                                  onclick="handleUpgradeClick('{{ plan.id }}', this.dataset.action, 'Y')">
+                                            {% if is_expired %}
+                                              Upgrade
+                                            {% elseif data.final_price == plan.strick_price %}
+                                              Cancel
+                                            {% else %}
+                                              Upgrade
+                                            {% endif %}
+                                          </button>
+
+                                        </div>
+                                      {% endfor %}
+                                    {% else %}
+                                      <p>No plans available.</p>
+                                    {% endif %}
+                                  </div>
+                                </div>
+
+                                <p class="pricing-contact">
+                                  Are you looking for a custom plan or Enterprise plan? Contact us
+                                  <a href="mailto:hello@skynettechnologies.com">hello@skynettechnologies.com</a>
+                                </p>
+                              </section>
+
+
+                              <hr class="divider">
+
+                              <!-- Help Section -->
+                              <section class="help">
+                                <p class="help-text">
+                                  <strong>Facing any issues with SkynetAccessibility Scanner?</strong>
+                                  Report a problem, we will get back to you very soon!
+                                </p>
+                                <a href="https://www.skynettechnologies.com/report-accessibility-problem" class="help-btn" target="_blank" rel="noopener noreferrer">Report a problem</a>
+                              </section>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- End Section 1-->
+
+<!-- Section 2-->
+<!-- Violation Report data -->
+<div id="section2" style="display:none;">
+  <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+    <div id="page-wrapper">
+      <div id="page">
+        <div id="main-wrapper" class="layout-main-wrapper clearfix">
+          <div id="main" class="container">
+            <div class="row row-offcanvas row-offcanvas-left clearfix">
+              <main class="main-content col" id="content" role="main">
+                <section class="section">
+                  <div id="main-content" tabindex="-1"></div>
+                  <div id="block-skynettechnologies-content"
+                       class="block block-system block-system-main-block">
+                    <div class="content">
+                      <article class="node node--type-page node--view-mode-full clearfix">
+                        <div class="node__content clearfix">
+                          <div class="scanning-monitoring-app">
+                            <div class="accessibility-report">
+                              <div class="report-date">
+                                <label for="report-date">Report Date:</label>
+                                <select id="report-date">
+                                  <option selected>
+                                    {% if data.last_scan is defined %}
+                                      {{ data.last_scan|date("jS F, Y") }}
+                                    {% endif %}
+                                  </option>
+                                </select>
+                              </div>
+
+                              <section class="top-section">
+                                <div class="card score-card">
+                                  <h3>Accessibility Score</h3>
+                                  <div class="accessibility-score">
+                                    {% set percentage = data.success_percentage|default(0) %}
+                                    <div class="score-value">{{ percentage }}%</div>
+
+                                    {% set status_class = '' %}
+                                    {% set status_text = '' %}
+
+                                    {% if percentage >= 0 and percentage < 50 %}
+                                      {% set status_class = 'not-compliant' %}
+                                      {% set status_text = 'Not Compliant' %}
+                                    {% elseif percentage >= 50 and percentage < 85 %}
+                                      {% set status_class = 'semi-compliant' %}
+                                      {% set status_text = 'Semi Compliant' %}
+                                    {% elseif percentage >= 85 %}
+                                      {% set status_class = 'compliant' %}
+                                      {% set status_text = 'Compliant' %}
+                                    {% endif %}
+
+                                    <span class="status-text {{ status_class }}">
+                                      {{ status_text }}
+                                    </span>
+                                  </div>
+
+                                  <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ percentage }}%;"></div>
+                                  </div>
+                                  <p class="note">
+                                    Automated Accessibility score has limitations.
+                                    We recommend Manual Accessibility Audit.
+                                  </p>
+                                </div>
+
+                                <!-- Web Pages Scanned -->
+                                <div class="card pages-card">
+                                  <h3>Web Pages Scanned</h3>
+                                  {% set total_scan_pages = data.total_scan_pages|default(0) %}
+                                  {% set total_pages = data.total_pages|default(0) %}
+                                  {% set progress_width = (total_pages > 0) ? (total_scan_pages / total_pages * 100) : 0 %}
+
+                                  <div class="pages-value">{{ total_scan_pages }}</div>
+
+                                  <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ progress_width }}%;"></div>
+                                  </div>
+
+                                  <p class="note">
+                                    {{ total_scan_pages }} pages scanned out of {{ total_pages }}
+                                  </p>
+                                </div>
+                              </section>
+
+                              <!-- WCAG Section -->
+                              <section class="wcag-section">
+                                <div class="wcag-header">
+                                  <h3>WCAG 2.1/2.2</h3>
+                                  <button onclick="window.open('{{ data.violation_link|default('#') }}', '_blank')" class="view-btn">
+                                    View all Violations
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" viewBox="0 0 6 10" fill="none">
+                                      <path d="M6 5.00002C6 5.17924 5.92797 5.35843 5.78422 5.49507L1.25832 9.79486C0.970413 10.0684 0.503627 10.0684 0.21584 9.79486C-0.0719468 9.52145 -0.0719468 9.07807 0.21584 8.80452L4.22061 5.00002L0.21598 1.19549C-0.0718073 0.921968 -0.0718073 0.478632 0.21598 0.205242C0.503767 -0.0684128 0.970553 -0.0684128 1.25846 0.205242L5.78436 4.50496C5.92814 4.64166 6 4.82086 6 5.00002Z" fill="white" />
+                                    </svg>
+                                  </button>
+                                </div>
+
+                                <!-- Checks Grid -->
+                                <div class="checks-grid">
+                                  <div class="check-card failed">
+                                    <span class="check-value">
+                                      {{ data.scan_details.with_remediation.total_fail|default(0) }}
+                                    </span>
+                                    <span class="check-label">Failed Checks</span>
+                                  </div>
+
+                                  <div class="check-card passed">
+                                    <span class="check-value">
+                                      {{ data.scan_details.with_remediation.total_success|default(0) }}
+                                    </span>
+                                    <span class="check-label">Passed Checks</span>
+                                  </div>
+
+                                  <div class="check-card na">
+                                    <span class="check-value">
+                                      {{ data.scan_details.with_remediation.severity_counts.Not_Applicable|default(0) }}
+                                    </span>
+                                    <span class="check-label">N/A Checks</span>
+                                  </div>
+                                </div>
+
+                                <hr class="divider">
+
+                                <!-- Violations Grid -->
+                                <div class="violations-grid">
+                                  <div class="violation-card">
+                                    <span class="violation-title">Level A</span>
+                                    <span class="violation-count">
+                                      <span>{{ data.scan_details.with_remediation.criteria_counts.A|default(0) }}</span> violations
+                                    </span>
+                                  </div>
+
+                                  <div class="violation-card">
+                                    <span class="violation-title">Level AA</span>
+                                    <span class="violation-count">
+                                      <span>{{ data.scan_details.with_remediation.criteria_counts.AA|default(0) }}</span> violations
+                                    </span>
+                                  </div>
+
+                                  <div class="violation-card">
+                                    <span class="violation-title">Level AAA</span>
+                                    <span class="violation-count">
+                                      <span>{{ data.scan_details.with_remediation.criteria_counts.AAA|default(0) }}</span> violations
+                                    </span>
+                                  </div>
+                                </div>
+
+                              </section>
+
+                              <br>
+                              <button class="back-btn" onclick="goBack()">Back</button>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Section 2-->
+</body>
+  <script>
+    function handleUpgradeClick(planId, actionType, interval) {
+      const websiteId = "{{ data.website_id|default('') }}";
+
+      // Use the actionType from the PHP plan.action
+      const payload = {
+        website_id: websiteId,
+        current_package_id: "{{ data.package_id|default('') }}", // always required
+        action: actionType // 'upgrade' or 'cancel'
+      };
+
+      // Only include package_id and interval for upgrade
+      if (actionType === 'upgrade') {
+        payload.package_id = planId;
+        payload.interval = interval; // 'M' or 'Y'
+      }
+
+      const formBody = new URLSearchParams(payload).toString();
+      const newWindow = window.open('', '_blank'); // open blank tab immediately
+
+      fetch('https://skynetaccessibilityscan.com/api/generate-plan-action-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formBody
+      })
+              .then(res => res.json())
+              .then(data => {
+                console.log("API Response:", data);
+                const redirectUrl = data.action_link || data.url;
+                if (redirectUrl) {
+                  newWindow.location.href = redirectUrl; // update opened tab
+                } else {
+                  newWindow.close();
+                  alert("No link returned from API");
+                }
+              })
+              .catch(err => console.error("API Error:", err));
+
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const activeSubscrInterval = "{{ data.subscr_interval|default('M') }}"; // 'M' = Monthly, 'Y' = Annual
+      const endDateStr = "{{ data.end_date|default('') }}"; // format: YYYY-MM-DD
+
+      const toggle = document.getElementById("billing-toggle");
+      const monthlyLabel = document.getElementById("monthly-label");
+      const annualLabel = document.getElementById("annual-label");
+      const monthlyclass = document.getElementById("monthlyclass");
+      const annualclass = document.getElementById("annualclass");
+
+      const isExpired = endDateStr && new Date(endDateStr) < new Date();
+
+      // Update buttons in a specific container
+      function updateButtons(container) {
+        container.querySelectorAll('.upgrade-btn').forEach(btn => {
+          const planAction = btn.dataset.action; // 'cancel' or 'upgrade'
+
+          if (isExpired) {
+            btn.textContent = 'Upgrade';
+            btn.dataset.action = 'upgrade';
+            btn.classList.remove('cancel-btnn');
+          } else {
+            if (planAction === 'cancel') {
+              btn.textContent = 'Cancel';
+              btn.classList.add('cancel-btnn');
+            } else {
+              btn.textContent = 'Upgrade';
+              btn.classList.remove('cancel-btnn');
+            }
+          }
+        });
+      }
+
+      updateButtons(monthlyclass);
+      updateButtons(annualclass);
+
+      // Auto toggle based on active plan
+      function showMonthly() {
+        toggle.checked = false;
+        monthlyLabel.classList.add("active");
+        annualLabel.classList.remove("active");
+        monthlyclass.style.display = "block";
+        annualclass.style.display = "none";
+      }
+
+      function showAnnual() {
+        toggle.checked = true;
+        monthlyLabel.classList.remove("active");
+        annualLabel.classList.add("active");
+        monthlyclass.style.display = "none";
+        annualclass.style.display = "block";
+      }
+
+      if (activeSubscrInterval === 'Y') {
+        showAnnual();
+      } else {
+        showMonthly();
+      }
+
+      toggle.addEventListener("change", () => {
+        if (toggle.checked) showAnnual();
+        else showMonthly();
+      });
+    });
+
+    // Hide and show violation report section function
+    function showDetails() {
+      document.getElementById("section1").style.display = "none";
+      document.getElementById("section2").style.display = "block";
+    }
+
+    function goBack() {
+      document.getElementById("section2").style.display = "none";
+      document.getElementById("section1").style.display = "block";
+    }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script type="text/javascript"
+          src="https://www.skynettechnologies.com/themes/bootstrap_barrio/skynettechnologies/js/jquery.sticky-kit.js"></script>
+  <script type="text/javascript"
+          src="https://www.skynettechnologies.com/libraries/bootstrap/js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url('plugin://skynetaccessibilityscanner/assets/js/scanning-monitoring-app.js') }}"></script>
+  <script src="{{ url('plugin://skynetaccessibilityscanner/assets/js/bootstrap.bundle.min.js') }}"></script>
+
+{% endblock %}

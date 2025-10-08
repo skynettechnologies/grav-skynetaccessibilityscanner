@@ -1,0 +1,33 @@
+name: SkynetAccessibility Scanner
+version: 1.0.0
+description: Scan, monitor, and identify website accessibility issues across WCAG 2.0, 2.1, 2.2, ADA, Section 508, EN 301 549, UK Equality Act, Australian DDA, and Canada ACA. Get simple issue highlights with recommended fixes.
+icon:
+author:
+    name: Skynet Technologies USA LLC
+    email: hello@skynettechnologies.com
+    url: https://www.skynettechnologies.com/
+
+keywords: Scanning, And, Monitroing
+docs:
+license: MIT
+
+dependencies:
+    - { name: grav, version: '>=1.7.49' }
+    - { name: admin, version: '>=1.10.49' }
+
+form:
+    validation: strict
+    fields:
+        enabled:
+            type: toggle
+            label: PLUGIN_ADMIN.PLUGIN_STATUS
+            highlight: 1
+            default: 0
+            options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+            validate:
+                type: bool
+
+
+
