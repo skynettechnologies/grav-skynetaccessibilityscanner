@@ -1,7 +1,7 @@
 name: SkynetAccessibility Scanner
 slug: skynetaccessibility-scanner
 type: plugin
-version: 1.0.2
+version: 1.0.3
 description: Scan, monitor, and identify website accessibility issues across WCAG 2.0, 2.1, 2.2, ADA, Section 508, EN 301 549, UK Equality Act, Australian DDA, and Canada ACA. Get simple issue highlights with recommended fixes.
 icon: plug
 author:
@@ -9,10 +9,10 @@ author:
     email: hello@skynettechnologies.com
     url: https://www.skynettechnologies.com/
 
-homepage: https://www.skynettechnologies.com
-keywords: accessibility, scanner, monitoring, wcag, ada, compliance
+homepage: https://github.com/skynettechnologies/grav-skynetaccessibilityscanner
+keywords: accessibility, scanner, monitoring, wcag, ada, compliance, EAA
 docs: https://www.skynettechnologies.com/accessibility-scanning-and-monitoring
-bugs: https://github.com/skynettechnologies/grav-skynetaccessibilityscanner
+bugs: https://github.com/skynettechnologies/grav-skynetaccessibilityscanner/issues
 license: MIT
 
 dependencies:
@@ -32,6 +32,3 @@ form:
                 0: PLUGIN_ADMIN.DISABLED
             validate:
                 type: bool
-
-
-
